@@ -14,6 +14,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _email = TextEditingController();
   final _pass = TextEditingController();
   final _room = TextEditingController();
+  final _emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
   bool _loading = false;
 
   @override
@@ -35,6 +36,7 @@ class _SignupScreenState extends State<SignupScreen> {
       name: _name.text.trim(),
       roomNumber: _room.text.trim(),
     );
+    if (!mounted) return;
     setState(() => _loading = false);
     if (err != null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err), backgroundColor: Colors.red));
@@ -61,7 +63,14 @@ class _SignupScreenState extends State<SignupScreen> {
                 children: [
                   TextFormField(controller: _name, decoration: const InputDecoration(labelText: 'Full name'), validator: (v) => (v != null && v.length >= 3) ? null : 'Enter name'),
                   const SizedBox(height: 12),
-                  TextFormField(controller: _email, decoration: const InputDecoration(labelText: 'Email'), validator: (v) => (v != null && v.contains('@')) ? null : 'Email'),
+                  TextFormField(
+                    controller: _email,
+                    decoration: const InputDecoration(labelText: 'Email'),
+                    validator: (v) {
+                      final value = v?.trim() ?? '';
+                      return _emailRegex.hasMatch(value) ? null : 'Enter a valid email';
+                    },
+                  ),
                   const SizedBox(height: 12),
                   TextFormField(controller: _room, decoration: const InputDecoration(labelText: 'Room number'), validator: (v) => (v != null && v.isNotEmpty) ? null : 'Room'),
                   const SizedBox(height: 12),

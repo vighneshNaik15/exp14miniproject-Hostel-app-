@@ -35,12 +35,16 @@ class _AddComplaintScreenState extends State<AddComplaintScreen> {
         'status': 'open',
         'createdAt': FieldValue.serverTimestamp(),
       });
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Complaint submitted'), backgroundColor: Colors.green));
       Navigator.pop(context);
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
     } finally {
-      setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 

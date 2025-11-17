@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "103810636758",
+    "project_id": "goa-hostel-app",
+    "storage_bucket": "goa-hostel-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:103810636758:android:bb98335eb502fa2ecc6277",
+        "android_client_info": {
+          "package_name": "com.hostelapp.miniproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2BbMud3kRCQx16TJatTGvs2CbBCR6788"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -9,6 +9,7 @@ import 'package:miniproject/screens/holidays/holidays_screen.dart';
 import 'package:miniproject/screens/complaints/add_complaint.dart';
 import 'package:miniproject/screens/complaints/complaint_list.dart';
 import 'package:miniproject/screens/notices/notices_screen.dart';
+import 'package:miniproject/screens/vip/vip_screen.dart';
 
 // Profile
 import 'package:miniproject/screens/profile/profile_screen.dart';
@@ -65,23 +66,23 @@ class DashboardScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(18),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.blue.withOpacity(0.2),
+                    color: Colors.blue.withValues(alpha: 0.2),
                     blurRadius: 12,
                     offset: const Offset(0, 5),
                   ),
                 ],
               ),
-              child: Row(
+              child: const Row(
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 28,
                     backgroundColor: Colors.white,
                     child: Icon(Icons.person, size: 34),
                   ),
-                  const SizedBox(width: 14),
+                  SizedBox(width: 14),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
                         "Welcome!",
                         style: TextStyle(
@@ -195,6 +196,15 @@ class DashboardScreen extends StatelessWidget {
                     MaterialPageRoute(builder: (_) => const ProfileScreen()),
                   ),
                 ),
+                _tile(
+                  "VIP",
+                  Icons.workspace_premium,
+                  Colors.amber,
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const VipScreen()),
+                  ),
+                ),
               ],
             ),
           ],
@@ -215,7 +225,7 @@ class DashboardScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
@@ -226,7 +236,7 @@ class DashboardScreen extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 28,
-              backgroundColor: color.withOpacity(0.15),
+              backgroundColor: color.withValues(alpha: 0.15),
               child: Icon(icon, color: color, size: 30),
             ),
             const SizedBox(height: 12),

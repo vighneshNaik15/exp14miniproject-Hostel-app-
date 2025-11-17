@@ -12,7 +12,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailCtl = TextEditingController();
   final _passCtl = TextEditingController();
+  final _emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
   bool _loading = false;
+  bool _googleLoading = false;
   bool _obscure = true;
 
   @override
@@ -30,7 +32,21 @@ class _LoginScreenState extends State<LoginScreen> {
       email: _emailCtl.text.trim(),
       password: _passCtl.text,
     );
+    if (!mounted) return;
     setState(() => _loading = false);
+    if (err != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err), backgroundColor: Colors.red));
+      return;
+    }
+    Navigator.pushReplacementNamed(context, '/dashboard');
+  }
+
+  Future<void> _loginWithGoogle() async {
+    setState(() => _googleLoading = true);
+    final auth = Provider.of<AuthService>(context, listen: false);
+    final err = await auth.signInWithGoogle();
+    if (!mounted) return;
+    setState(() => _googleLoading = false);
     if (err != null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err), backgroundColor: Colors.red));
       return;
@@ -64,7 +80,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         TextFormField(
                           controller: _emailCtl,
                           decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email)),
-                          validator: (v) => (v != null && v.contains('@')) ? null : 'Enter a valid email',
+                          validator: (v) {
+                            final value = v?.trim() ?? '';
+                            return _emailRegex.hasMatch(value) ? null : 'Enter a valid email';
+                          },
                           keyboardType: TextInputType.emailAddress,
                         ),
                         const SizedBox(height: 12),
@@ -90,10 +109,36 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: _loading ? const CircularProgressIndicator() : const Text('Login'),
                           ),
                         ),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: OutlinedButton.icon(
+                            icon: _googleLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  )
+                                : const Icon(Icons.g_mobiledata),
+                            label: Text(_googleLoading ? 'Signing in...' : 'Sign in with Google'),
+                            onPressed: (_loading || _googleLoading) ? null : _loginWithGoogle,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         TextButton(
                           onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignupScreen())),
                           child: const Text('Don\'t have an account? Sign up'),
+                        ),
+                        const SizedBox(height: 8),
+                        OutlinedButton.icon(
+                          icon: const Icon(Icons.visibility),
+                          label: const Text('Continue as Guest'),
+                          onPressed: () {
+                            final auth = Provider.of<AuthService>(context, listen: false);
+                            auth.enterGuestMode();
+                            Navigator.pushReplacementNamed(context, '/dashboard');
+                          },
                         ),
                       ],
                     ),

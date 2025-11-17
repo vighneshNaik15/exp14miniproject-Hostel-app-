@@ -24,7 +24,7 @@ class ProfileScreen extends StatelessWidget {
 
             CircleAvatar(
               radius: 45,
-              backgroundColor: Colors.blueAccent.withOpacity(0.3),
+              backgroundColor: Colors.blueAccent.withValues(alpha: 0.3),
               child: const Icon(Icons.person, size: 60),
             ),
 
@@ -53,6 +53,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               onPressed: () async {
                 await auth.signOut();
+                if (!context.mounted) return;
                 Navigator.pushReplacementNamed(context, '/');
               },
             ),
