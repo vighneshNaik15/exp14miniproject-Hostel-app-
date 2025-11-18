@@ -7,6 +7,7 @@ import 'firebase_options.dart';
 
 // Services
 import 'package:miniproject/services/auth_service.dart';
+import 'package:miniproject/services/theme_service.dart';
 
 // Auth Screens
 import 'package:miniproject/screens/auth/login_screen.dart';
@@ -22,6 +23,8 @@ import 'package:miniproject/screens/news/news_screen.dart';
 import 'package:miniproject/screens/weather/weather_screen.dart';
 import 'package:miniproject/screens/holidays/holidays_screen.dart';
 import 'package:miniproject/screens/vip/vip_screen.dart';
+import 'package:miniproject/screens/warden/warden_dashboard.dart';
+import 'package:miniproject/screens/profile/profile_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,33 +42,36 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthService()),
+        ChangeNotifierProvider(create: (_) => ThemeService()),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Hostel App',
+      child: Consumer<ThemeService>(
+        builder: (context, themeService, child) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Hostel App',
 
-        // CLEAN THEME (NO BRIGHTNESS ERRORS)
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blue,
-            brightness: Brightness.light,
-          ),
-        ),
+            // CLEAN THEME (NO BRIGHTNESS ERRORS)
+            theme: ThemeData(
+              useMaterial3: true,
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.blue,
+                brightness: Brightness.light,
+              ),
+            ),
 
-        darkTheme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blue,
-            brightness: Brightness.dark,
-          ),
-        ),
+            darkTheme: ThemeData(
+              useMaterial3: true,
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.blue,
+                brightness: Brightness.dark,
+              ),
+            ),
 
-        themeMode: ThemeMode.system,
+            themeMode: themeService.themeMode,
 
-        initialRoute: '/',
+            initialRoute: '/',
 
-        routes: {
+            routes: {
           '/': (context) => const LoginScreen(),
           '/dashboard': (context) => const DashboardScreen(),
 
@@ -79,9 +85,10 @@ class MyApp extends StatelessWidget {
           '/weather': (context) => const WeatherScreen(),
           '/holidays': (context) => const HolidaysScreen(),
           '/vip': (context) => const VipScreen(),
-
-          // REMOVED — because file does NOT exist
-          // '/profile': (context) => ProfileScreen(),
+          '/warden': (context) => const WardenDashboardScreen(),
+          '/profile': (context) => const ProfileScreen(),
+        },
+          );
         },
       ),
     );

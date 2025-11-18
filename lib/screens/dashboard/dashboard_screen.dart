@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 // API Screens
 import 'package:miniproject/screens/news/news_screen.dart';
@@ -10,32 +11,51 @@ import 'package:miniproject/screens/complaints/add_complaint.dart';
 import 'package:miniproject/screens/complaints/complaint_list.dart';
 import 'package:miniproject/screens/notices/notices_screen.dart';
 import 'package:miniproject/screens/vip/vip_screen.dart';
-
 // Profile
 import 'package:miniproject/screens/profile/profile_screen.dart';
+
+// Services
+import 'package:miniproject/services/theme_service.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final themeService = Provider.of<ThemeService>(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xfff5f7fa),
+      backgroundColor: isDark ? Colors.grey.shade900 : const Color(0xfff5f7fa),
 
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? Colors.grey.shade900 : Colors.white,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Dashboard',
           style: TextStyle(
-            color: Colors.black87,
+            color: isDark ? Colors.white : Colors.black87,
             fontWeight: FontWeight.w600,
           ),
         ),
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black87),
+        iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black87),
 
         actions: [
+          // Theme Toggle Button
+          IconButton(
+            icon: Icon(
+              themeService.isDarkMode
+                  ? Icons.light_mode
+                  : themeService.isLightMode
+                      ? Icons.dark_mode
+                      : Icons.brightness_auto,
+            ),
+            tooltip: 'Toggle Theme',
+            onPressed: () {
+              _showThemeDialog(context, themeService);
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.person),
             onPressed: () {
@@ -107,12 +127,12 @@ class DashboardScreen extends StatelessWidget {
 
             const SizedBox(height: 22),
 
-            const Text(
+            Text(
               "Quick Actions",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: isDark ? Colors.white : Colors.black87,
               ),
             ),
 
@@ -215,39 +235,91 @@ class DashboardScreen extends StatelessWidget {
 
   // ⭐ REUSABLE TILE WIDGET
   Widget _tile(String title, IconData icon, Color color, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: 0.15),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
+    return Builder(
+      builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return GestureDetector(
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: isDark ? Colors.grey.shade800 : Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.15),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: color.withValues(alpha: 0.15),
+                  child: Icon(icon, color: color, size: 30),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black87,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showThemeDialog(BuildContext context, ThemeService themeService) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Choose Theme'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            CircleAvatar(
-              radius: 28,
-              backgroundColor: color.withValues(alpha: 0.15),
-              child: Icon(icon, color: color, size: 30),
+            ListTile(
+              leading: const Icon(Icons.light_mode, color: Colors.amber),
+              title: const Text('Light Mode'),
+              trailing: themeService.isLightMode
+                  ? const Icon(Icons.check, color: Colors.blue)
+                  : null,
+              onTap: () {
+                themeService.setThemeMode(ThemeMode.light);
+                Navigator.pop(context);
+              },
             ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.black87,
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-              ),
+            ListTile(
+              leading: const Icon(Icons.dark_mode, color: Colors.indigo),
+              title: const Text('Dark Mode'),
+              trailing: themeService.isDarkMode
+                  ? const Icon(Icons.check, color: Colors.blue)
+                  : null,
+              onTap: () {
+                themeService.setThemeMode(ThemeMode.dark);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.brightness_auto, color: Colors.blue),
+              title: const Text('System Default'),
+              trailing: themeService.isSystemMode
+                  ? const Icon(Icons.check, color: Colors.blue)
+                  : null,
+              onTap: () {
+                themeService.setThemeMode(ThemeMode.system);
+                Navigator.pop(context);
+              },
             ),
           ],
         ),

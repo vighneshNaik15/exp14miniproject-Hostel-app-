@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../services/auth_service.dart';
+import 'vip_dashboard_screen.dart';
 
 class VipScreen extends StatefulWidget {
   const VipScreen({super.key});
@@ -84,63 +85,254 @@ class _VipScreenState extends State<VipScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final status = _isVip == true ? 'Active' : 'Not active';
+    // If VIP is active, show the VIP Dashboard
+    if (_isVip == true) {
+      return const VipDashboardScreen();
+    }
+
+    // Otherwise show subscription screen
     return Scaffold(
       appBar: AppBar(
         title: const Text('VIP Subscription'),
+        backgroundColor: Colors.amber.shade700,
+        foregroundColor: Colors.white,
       ),
-      body: RefreshIndicator(
-        onRefresh: _loadVipStatus,
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'VIP Status: $status',
-                      style: Theme.of(context).textTheme.titleMedium,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.amber.shade50,
+              Colors.orange.shade50,
+            ],
+          ),
+        ),
+        child: RefreshIndicator(
+          onRefresh: _loadVipStatus,
+          child: ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              // VIP Premium Card
+              Card(
+                elevation: 8,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.amber.shade400, Colors.orange.shade600],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _activatedAt != null
-                          ? 'Activated on ${_activatedAt!.toDate()}'
-                          : 'Unlock VIP perks like faster complaint handling, exclusive notices, and priority support.',
-                    ),
-                    if (_error != null) ...[
-                      const SizedBox(height: 12),
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.workspace_premium,
+                        size: 80,
+                        color: Colors.white,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.3),
+                            blurRadius: 10,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'VIP PREMIUM',
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                       Text(
-                        _error!,
-                        style: const TextStyle(color: Colors.red),
+                        'Unlock exclusive features and priority support',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
                       ),
                     ],
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: (_isVip == true || _loading) ? null : () => _updateVipStatus(true),
-                        icon: const Icon(Icons.workspace_premium),
-                        label: _loading
-                            ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                            : const Text('Subscribe to VIP'),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextButton(
-                      onPressed: (_isVip == true && !_loading) ? () => _updateVipStatus(false) : null,
-                      child: const Text('Cancel VIP Subscription'),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 24),
+
+              // Benefits Card
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.star, color: Colors.amber.shade700, size: 28),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'VIP Benefits',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      _buildBenefitItem(
+                        Icons.speed,
+                        'Priority Handling',
+                        '30% faster response time on all complaints',
+                      ),
+                      _buildBenefitItem(
+                        Icons.support_agent,
+                        '24/7 Support',
+                        'Dedicated support team available anytime',
+                      ),
+                      _buildBenefitItem(
+                        Icons.verified,
+                        'Guaranteed Resolution',
+                        'SLA-backed complaint resolution',
+                      ),
+                      _buildBenefitItem(
+                        Icons.notifications_active,
+                        'Real-time Updates',
+                        'Instant notifications on complaint status',
+                      ),
+                      _buildBenefitItem(
+                        Icons.room_service,
+                        'Premium Services',
+                        'Access to exclusive room services',
+                      ),
+                      _buildBenefitItem(
+                        Icons.campaign,
+                        'VIP Announcements',
+                        'Early access to important updates',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Error message
+              if (_error != null)
+                Card(
+                  color: Colors.red.shade50,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error, color: Colors.red.shade700),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            _error!,
+                            style: TextStyle(color: Colors.red.shade700),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              if (_error != null) const SizedBox(height: 16),
+
+              // Subscribe Button
+              SizedBox(
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: _loading ? null : () => _updateVipStatus(true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber.shade700,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 4,
+                  ),
+                  child: _loading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.workspace_premium, size: 28),
+                            SizedBox(width: 12),
+                            Text(
+                              'Subscribe to VIP',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Terms
+              Text(
+                'By subscribing, you agree to our terms and conditions. Cancel anytime from your VIP dashboard.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildBenefitItem(IconData icon, String title, String description) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.amber.shade100,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: Colors.amber.shade700, size: 24),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.check_circle, color: Colors.green.shade600, size: 24),
+        ],
       ),
     );
   }
